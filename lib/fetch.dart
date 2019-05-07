@@ -1,30 +1,40 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-Future<Post> fetchPost() async {
-  final response = await http.get('https://jsonplaceholder.typicode.com/posts/1');
+int post_size = 10;
+
+Future<List<Post>> fetchPost() async {
+  final response = await http.get('https://www.reddit.com/r/memes/top.json');
 
   if(response.statusCode == 200) {
-    return Post.fromJson(json.decode(response.body));
+    List<Post> posts = new List(20);
+    for (var i = 0; i < post_size; i++) {
+      posts[i] = Post.fromJson(json.decode(response.body)['data']['children'][i]['data']);
+    }
+    return posts;
   } else {
     throw Exception('Failed to load the post');
   }
 }
 
 class Post {
-  final int userId;
-  final int id;
+  final String subreddit;
+  final String user;
   final String title;
-  final String body;
+  final String url;
+  final int score;
+  final int comments;
 
-  Post({this.userId, this.id, this.title, this. body});
+  Post({this.subreddit, this.user, this.title, this. url, this.score, this.comments});
 
   factory Post.fromJson(Map<String, dynamic> json){
     return Post(
-      userId: json['userId'],
-      id: json['id'],
+      subreddit: json['subreddit'],
+      user: json['name'],
       title: json['title'],
-      body: json['body'],
+      url: json['url'],
+      score:  json['score'],
+      comments:  json['num_comments'],
     );
   }
 }
