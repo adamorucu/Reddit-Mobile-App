@@ -1,5 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:reddit/fetch.dart';
+import 'package:reddit/inpost.dart';
+
+// final topBar = new AppBar(
+//     backgroundColor: new Color(0xffe64a19),
+//     centerTitle: true,
+//     elevation: 1.0,
+//     title: Text('Reddit'),
+// );
+
+final topBar = new SliverAppBar(
+  expandedHeight: 150.0,
+  flexibleSpace: const FlexibleSpaceBar(
+    title: Text('Reddit'),
+  ),
+  actions: <Widget>[
+    IconButton(
+      icon: const Icon(Icons.add_circle),
+      tooltip: 'Add new entry',
+      onPressed: () { /* ... */ },
+    ),
+  ]
+);
 
 void main() => runApp(MyApp());
 
@@ -16,22 +38,55 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  final topBar = new AppBar(
-    backgroundColor: new Color(0xffe64a19),
-    centerTitle: true,
-    elevation: 1.0,
-    title: Text('Reddit'),
-  );
+  // final topBar = new AppBar(
+  //   backgroundColor: new Color(0xffe64a19),
+  //   centerTitle: true,
+  //   elevation: 1.0,
+  //   title: Text('Reddit'),
+  // );
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: topBar,
+  //     body: new Column(
+  //       mainAxisAlignment: MainAxisAlignment.start,
+  //       children: <Widget>[
+  //         Flexible(child: PostsList(posts: fetchPost(),),),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: topBar,
-      body: new Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Flexible(child: PostsList(posts: fetchPost(),),),
-        ],
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            SliverAppBar(
+              expandedHeight: 70.0,
+              floating: true,
+              pinned: false,
+              flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: true,
+                  title: Text("Reddit",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                      )),
+                  ),
+            ),
+          ];
+        },
+        body: Center(
+          child: new Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Flexible(child: PostsList(posts: fetchPost(),),),
+          ],
+        ),
+        ),
       ),
     );
   }
@@ -101,12 +156,20 @@ class PostsList extends StatelessWidget {
                         ),
                       ),
                     ),
-
+                    
                     Flexible(
                       fit:FlexFit.loose,
-                      child: new Image.network(
-                        snapshot.data[index].url,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => PostPage(permalink: snapshot.data[index].permalink, photo_url: snapshot.data[index].photo_url)),
+                          );
+                        },
+                        child: new Image.network(
+                        snapshot.data[index].photo_url,
                         fit:BoxFit.cover,
+                        ),
                       ),
                     ),
 
@@ -127,7 +190,24 @@ class PostsList extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               new Text(snapshot.data[index].comments.toString(), style: TextStyle(color: new Color(0xffe64a19), fontWeight: FontWeight.bold),),
-                              new Icon(Icons.mode_comment, color: new Color(0xffe64a19),),
+                              new IconButton(
+                                icon: new Icon(Icons.mode_comment, color: new Color(0xffe64a19),),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => PostPage(permalink: snapshot.data[index].permalink)),
+                                  );
+                                },
+                              ),
+                              // new GestureDetector(
+                              //   onTap: () {
+                              //     Navigator.push(
+                              //       context,
+                              //       MaterialPageRoute(builder: (context) => PostPage()),
+                              //     );
+                              //   },
+                              //   child: new Icon(Icons.mode_comment, color: new Color(0xffe64a19),),
+                              // ),
                             ],
                           ),
                         ],
